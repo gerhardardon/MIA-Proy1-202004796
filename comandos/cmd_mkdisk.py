@@ -1,4 +1,6 @@
+from datetime import datetime
 import os
+import random
 
 class cmd_mkdisk:
     
@@ -6,6 +8,7 @@ class cmd_mkdisk:
     def createDisk(self, size, path, fit, unit):
         self.createRoutes(path)
         self.create(size, path, fit, unit)
+        self.createMBR(size, path, fit, unit)
 
 
     ## descompone y crea las rutas 
@@ -23,6 +26,7 @@ class cmd_mkdisk:
                 except:
                     pass
 
+    ## crea el archivo
     def create(self, size, path, fit, unit):
         print("creando--"+path)
         if unit== 'k':
@@ -40,5 +44,17 @@ class cmd_mkdisk:
             print("disk creado")
         except:
             print("fallo creando disk")
+ 
+    def createMBR(self, size, path, fit, unit):
+        if unit== 'k':
+            unit = 1024
+        elif unit== 'm':
+            unit= 1024*1024
+        else:
+            print('error al crear disco')
+        mbr_tamano = size*unit
+        mbr_fecha_cracion = int(datetime.timestamp(datetime.now()))
+        mbr_dsk_signature = random.randint(0,10000)
+        dsk_fit = fit
 
-    
+        
