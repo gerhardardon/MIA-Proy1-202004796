@@ -1,4 +1,5 @@
 import argparse
+from comandos.cmd_mkdisk import cmd_mkdisk 
 
 #funciones para comandos (reemplazar con clases)
 def crear_disco(path, size, fit, unit):
@@ -30,7 +31,7 @@ def cmd_parser():
     args = parser.parse_args()
 
 
-    entrada = 'mkdisk -size=10 -path="/home/misdiscos/Disco4.dsk"'
+    entrada = 'mkdisk -size=10 -path="/home/misdiscos2/Disco2.dsk"'
 
     #read the input, must be changed to file content
     try:
@@ -42,7 +43,10 @@ def cmd_parser():
     #calls to cmd functions, must be classes
     if args.comando == 'mkdisk':
         path = args.path.strip('"')
-        crear_disco(path, args.size, args.fit, args.unit)
+        ##llamamos al
+        x=cmd_mkdisk()
+        x.createDisk(args.size, path, args.fit, args.unit)
+
     elif args.comando == 'mkfile':
         crear_archivo(args.name, args.age)
     else:
