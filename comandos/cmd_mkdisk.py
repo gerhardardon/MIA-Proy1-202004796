@@ -2,6 +2,29 @@ from datetime import datetime
 import os
 import random
 
+#partition-> status, type, fit, start, s, !!name
+class partition():
+    def __init__(self, status=b'0', type=b'0', fit=b'0', start=0, s=0, name=" "):
+        self.status = status
+        self.type = type
+        self.fit = fit
+        self.start = start
+        self.s = s
+        self.name = name[:15].ljust(15, " ")
+
+    def imprimir(self):
+        print(self.status, self.type, self.fit, self.start, self.s, self.name)
+    
+    def getBytes(self):
+        buffer=bytearray()
+        buffer+= self.status
+        buffer+= self.type
+        buffer+= self.fit
+        buffer+= self.start.to_bytes(4, byteorder='big')  # int -4bytes
+        buffer+= self.s.to_bytes(4, byteorder='big')      # int -4bytes
+        buffer+= self.name.encode('UTF-8')
+        return buffer
+
 class cmd_mkdisk:
     
     # function to create an empty file that works as a disk 
@@ -9,7 +32,6 @@ class cmd_mkdisk:
         self.createRoutes(path)
         self.create(size, path, fit, unit)
         self.createMBR(size, path, fit, unit)
-
 
     ## descompone y crea las rutas 
     def createRoutes(self, path):
@@ -44,8 +66,10 @@ class cmd_mkdisk:
             print("disk creado")
         except:
             print("fallo creando disk")
- 
-    def createMBR(self, size, path, fit, unit):
+    
+    ## define la estructura del mbr para luego escrubirlo en los primeros bites del dsk
+    def createMBR(self, size, path, fit , unit):
+        print("entra")
         if unit== 'k':
             unit = 1024
         elif unit== 'm':
@@ -56,5 +80,43 @@ class cmd_mkdisk:
         mbr_fecha_cracion = int(datetime.timestamp(datetime.now()))
         mbr_dsk_signature = random.randint(0,10000)
         dsk_fit = fit
+        ## tenemos que crear la var partriciones y luego escribir en el dsk, ver la grabacion del aux
+        mbr_partition = []
+        #partition-> status, type, fit, start, s, !!name
+        part=partition()
+        mbr_partition.append(part)
+        mbr_partition.append(part)
+        mbr_partition.append(part)
+        mbr_partition.append(part)
 
+        ## ecribir mbr en disk <--------- TRAL VEZ SE PUEDA HACER UNA CLASE PARA SOLO LLAMARLA
+        buffer=bytearray()
+        buffer+= mbr_tamano.to_bytes(4, byteorder='big')         # int -4bytes
+        buffer+= mbr_fecha_cracion.to_bytes(4, byteorder='big')  # int -4bytes
+        buffer+= mbr_dsk_signature.to_bytes(4, byteorder='big')  # int -4bytes
+        buffer+= dsk_fit.encode('utf-8')                         # char -1bytes
+
+        '''for num_partition in range(0,4):
+            for param_partition in range(0,5):
+                buffer+= mbr_partition[num_partition][param_partition]
+                #print(mbr_partition[num_partition][param_partition])'''
+                # CAMBIAR PATICIONES A CLASS CON OBJS ---------------------- IMPORTANTE
+        for x in mbr_partition:
+            buffer+= x.getBytes()
         
+        print(buffer)
+        #escribir en el DSK
+        with open("."+path, "rb") as file:
+            old_buffer = file.read()
+        file.close()
+
+        new_buffer= buffer+old_buffer[len(buffer):]
+        
+        try:
+            with open("."+path, "wb+") as file:
+                file.write(new_buffer)
+            file.close()
+            print('MBR creado')
+        except:
+            print('no se creo MBR')
+         
