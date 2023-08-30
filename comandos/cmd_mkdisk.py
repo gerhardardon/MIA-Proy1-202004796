@@ -2,45 +2,9 @@ from datetime import datetime
 import os
 import random
 
-class mbr():
-    def __init__(self, size, path, fit, unit):
-        self.size = size
-        self.path = path
-        self.fit = fit
-        self.unit = unit
+from comandos.objects import partition
 
-#partition-> status, type, fit, start, s, !!name
-class partition():
-    def __init__(self, status=b'0', type=b'0', fit=b'0', start=0, s=0, name="a"):
-        self.status = status
-        self.type = type
-        self.fit = fit
-        self.start = start
-        self.s = s
-        self.name = name[:15].ljust(15, "a")
-
-    def imprimir(self):
-        print(self.status, self.type, self.fit, self.start, self.s, self.name)
-    
-    def getBytes(self):
-        buffer=bytearray()
-        buffer+= self.status
-        buffer+= self.type
-        buffer+= self.fit
-        buffer+= self.start.to_bytes(4, byteorder='big')  # int -4bytes
-        buffer+= self.s.to_bytes(4, byteorder='big')      # int -4bytes
-        buffer+= self.name.encode('UTF-8')
-        return buffer
-    
-    def getSize(self):
-        size=0
-        size+= 3
-        size+= 8
-        size+= 16
-        return size
-
-class cmd_mkdisk:
-    
+class cmd_mkdisk():   
     # function to create an empty file that works as a disk 
     def createDisk(self, size, path, fit, unit):
         self.createRoutes(path)
@@ -133,14 +97,6 @@ class cmd_mkdisk:
             print('MBR creado')
         except:
             print('no se creo MBR')
-    
-    def getSize(self):
-        size= 0
-        size+= 4 # int -4bytes
-        size+= 4 # int -4bytes
-        size+= 4 # int -4bytes
-        size+= 1 # char -1bytes
-        return size
 
     def setBytes(self, buffer):
         tamano= int.from_bytes(buffer[0:4], byteorder= 'big')
