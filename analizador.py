@@ -1,6 +1,7 @@
 import argparse
 from comandos.cmd_mkdisk import cmd_mkdisk 
 from comandos.cmd_rmdisk import cmd_rmdisk 
+from comandos.cmd_fdisk import cmd_fdisk
 
 #funciones para comandos (reemplazar con clases)
 def crear_disco(path, size, fit, unit):
@@ -25,16 +26,22 @@ def cmd_parser():
     mkdisk_parser.add_argument('-unit', type=str, required=False, choices=['k','m'], default='m')
     
     # cmd RMDISK
-    mkdisk_parser = subparsers.add_parser('rmdisk', help='remover disco')
-    mkdisk_parser.add_argument('-path', required=True, help='Ruta para el disco')
+    rmdisk_parser = subparsers.add_parser('rmdisk', help='remover disco')
+    rmdisk_parser.add_argument('-path', required=True, help='Ruta para el disco')
     
-    # cmd MKFILE
-    mkfile_parser = subparsers.add_parser('mkfile', help='Crear archivo')
-    mkfile_parser.add_argument('-name', required=True, help='Nombre del archivo')
-    mkfile_parser.add_argument('-age', type=int, required=True, help='Edad del archivo')
-
+    # cmd FDISK
+    fdisk_parser = subparsers.add_parser('fdisk', help='Administrar particion')
+    fdisk_parser.add_argument('-path', required=True, help='Ruta para la particion')
+    fdisk_parser.add_argument('-size', type=int, required=True, help='Tamaño de la particion')
+    fdisk_parser.add_argument('-name', type=str, required=True, help='Nombre de la particion')
+    fdisk_parser.add_argument('-unit', type=str, required=False, choices=['b','k','m'], default='k')
+    fdisk_parser.add_argument('-type', type=str, required=False, choices=['p','e','l'], default='p')
+    fdisk_parser.add_argument('-fit', type=str, required=False, choices=['bf','ff','wf'], default='wf')
+    fdisk_parser.add_argument('-delete', type=str, required=False, choices=['full'], default='full')
+    fdisk_parser.add_argument('-add', type=int, required=False)
+   
     args = parser.parse_args()
-    entrada = 'mkdisk -path=/home/user/Disco2.dsk -size=1000'
+    entrada = 'fdisk -path=/home/user/Disco2.dsk -size=10 -name=pt1'
 
     #read the input, must be changed to file content
     try:
@@ -45,16 +52,29 @@ def cmd_parser():
 
     #calls to cmd functions, must be classes ------------------------------------------
     if args.comando == 'mkdisk':
-        path = args.path.strip('"')
-        ##llamamos a la clase
-        x=cmd_mkdisk()
-        x.createDisk(args.size, path, args.fit, args.unit)
+        if args.size <=0:
+            print('error in size')
+        else:
+            path = args.path.strip('"')
+            ##llamamos a la clase
+            x=cmd_mkdisk()
+            x.createDisk(args.size, path, args.fit, args.unit)
 
     elif args.comando == 'rmdisk':
         path = args.path.strip('"')
         ##llamamos a la clase
         x=cmd_rmdisk()
         x.removeDisk(path)
+
+    elif args.comando == 'fdisk':
+        if args.size <=0:
+            print('error in size')
+        else:
+            path = args.path.strip('"')
+            ##llamamos a la clase
+            x=cmd_fdisk()
+            x.createFdisk(args.size, args.path, args.name, args.unit, args.type, args.fit)
+
     elif args.comando == 'mkfile':
         crear_archivo(args.name, args.age)
     else:

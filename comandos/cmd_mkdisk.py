@@ -2,15 +2,22 @@ from datetime import datetime
 import os
 import random
 
+class mbr():
+    def __init__(self, size, path, fit, unit):
+        self.size = size
+        self.path = path
+        self.fit = fit
+        self.unit = unit
+
 #partition-> status, type, fit, start, s, !!name
 class partition():
-    def __init__(self, status=b'0', type=b'0', fit=b'0', start=0, s=0, name=" "):
+    def __init__(self, status=b'0', type=b'0', fit=b'0', start=0, s=0, name="a"):
         self.status = status
         self.type = type
         self.fit = fit
         self.start = start
         self.s = s
-        self.name = name[:15].ljust(15, " ")
+        self.name = name[:15].ljust(15, "a")
 
     def imprimir(self):
         print(self.status, self.type, self.fit, self.start, self.s, self.name)
@@ -24,6 +31,13 @@ class partition():
         buffer+= self.s.to_bytes(4, byteorder='big')      # int -4bytes
         buffer+= self.name.encode('UTF-8')
         return buffer
+    
+    def getSize(self):
+        size=0
+        size+= 3
+        size+= 8
+        size+= 16
+        return size
 
 class cmd_mkdisk:
     
@@ -119,4 +133,33 @@ class cmd_mkdisk:
             print('MBR creado')
         except:
             print('no se creo MBR')
-         
+    
+    def getSize(self):
+        size= 0
+        size+= 4 # int -4bytes
+        size+= 4 # int -4bytes
+        size+= 4 # int -4bytes
+        size+= 1 # char -1bytes
+        return size
+
+    def setBytes(self, buffer):
+        tamano= int.from_bytes(buffer[0:4], byteorder= 'big')
+        fecha= int.from_bytes(buffer[4:8], byteorder= 'big')
+        signature= int.from_bytes(buffer[8:12], byteorder= 'big')
+        fit= buffer[12:13].decode('UTF-8')
+        print(tamano,' ', fecha,' ',signature,' ',fit)
+        
+        particiones= []
+        for x in range(0,4):
+            part=partition()
+            
+
+    ## obtiene los valores del mbr   leer-> decode mbr -> decode partitions
+    def getMBR(self, path):
+        part= partition()
+        size= self.getSize() + (part.getSize()*4)
+        with open("."+path, "rb") as file:
+            ## leer solo los bytes de partitions
+            old_buffer = file.read(size)
+        file.close()
+        return old_buffer
