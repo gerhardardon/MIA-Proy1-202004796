@@ -57,7 +57,7 @@ class cmd_mkdisk():
         mbr_tamano = size*unit
         mbr_fecha_cracion = int(datetime.timestamp(datetime.now()))
         mbr_dsk_signature = random.randint(0,10000)
-        dsk_fit = fit
+        dsk_fit = fit[:-1]
         ## tenemos que crear la var partriciones y luego escribir en el dsk, ver la grabacion del aux
         mbr_partition = []
         #partition-> status, type, fit, start, s, !!name
@@ -82,7 +82,7 @@ class cmd_mkdisk():
         for x in mbr_partition:
             buffer+= x.getBytes()
         
-        print(buffer)
+        #print(buffer)
         #escribir en el DSK
         with open("."+path, "rb") as file:
             old_buffer = file.read()
@@ -97,25 +97,3 @@ class cmd_mkdisk():
             print('MBR creado')
         except:
             print('no se creo MBR')
-
-    def setBytes(self, buffer):
-        tamano= int.from_bytes(buffer[0:4], byteorder= 'big')
-        fecha= int.from_bytes(buffer[4:8], byteorder= 'big')
-        signature= int.from_bytes(buffer[8:12], byteorder= 'big')
-        fit= buffer[12:13].decode('UTF-8')
-        print(tamano,' ', fecha,' ',signature,' ',fit)
-        
-        particiones= []
-        for x in range(0,4):
-            part=partition()
-            
-
-    ## obtiene los valores del mbr   leer-> decode mbr -> decode partitions
-    def getMBR(self, path):
-        part= partition()
-        size= self.getSize() + (part.getSize()*4)
-        with open("."+path, "rb") as file:
-            ## leer solo los bytes de partitions
-            old_buffer = file.read(size)
-        file.close()
-        return old_buffer
