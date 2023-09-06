@@ -41,7 +41,7 @@ def cmd_parser():
     fdisk_parser.add_argument('-add', type=int, required=False)
    
     args = parser.parse_args()
-    entrada = 'fdisk -name=a -size=10 -path=/home/user/Disco1.dsk'
+    entrada = 'fdisk  -name=logica4 -type=l -unit=b -size=30 -path=/home/user/Disco1.dsk'
 
     #read the input, must be changed to file content
     try:
