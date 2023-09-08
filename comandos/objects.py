@@ -1,6 +1,6 @@
 #partition-> status, type, fit, start, s, !!name --------------------------------------------------
 class partition():
-    def __init__(self, status=b'0', type=b'0', fit=b'0', start=0, s=0, name="a"):
+    def __init__(self, status=b'0', type=b'0', fit=b'0', start=0, s=0, name="0"):
         self.status = status
         self.type = type
         self.fit = fit
@@ -9,7 +9,7 @@ class partition():
         self.name = name[:16].ljust(16, " ")
 
     def imprimir(self):
-        print(self.status, self.type, self.fit, self.start, self.s, self.name)
+        print('status', self.status, 'type', self.type, 'fit', self.fit, 'start', self.start, 's', self.s, 'name', self.name)
     
     def getBytes(self):
         buffer=bytearray()
@@ -85,6 +85,11 @@ class mbr():
             buffer= buffer[27:]
 
             self.partitions.append(part)
+    
+    def imprimir(self):
+        print('size', self.size, 'date', self.date, 'signature', self.signature, 'fit', self.fit)
+        for x in self.partitions:
+            x.imprimir()
 
 class ebr():
     def __init__(self, part_status=b'0', part_fit=b'0', part_start=0, part_s=0, part_next=0, part_name=' '):

@@ -47,7 +47,6 @@ class cmd_mkdisk():
     
     ## define la estructura del mbr para luego escrubirlo en los primeros bites del dsk
     def createMBR(self, size, path, fit , unit):
-        print("entra")
         if unit== 'k':
             unit = 1024
         elif unit== 'm':
@@ -94,6 +93,5 @@ class cmd_mkdisk():
             with open("."+path, "wb+") as file:
                 file.write(new_buffer)
             file.close()
-            print('MBR creado')
         except:
             print('no se creo MBR')
