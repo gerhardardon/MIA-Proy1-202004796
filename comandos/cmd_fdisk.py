@@ -75,18 +75,91 @@ class cmd_fdisk():
         start += mbr_.partitions[0].getSize()*4
         # se llena la info del nuevo partition
         # print('size', mbr_.size, 'date', mbr_.date, 'signature', mbr_.signature, 'fit', mbr_.fit)
-        for x in range(0, 4):
-            # print('status', mbr_.partitions[x].status, 'type', mbr_.partitions[x].type, 'fit', mbr_.partitions[x].fit, 'start', mbr_.partitions[x].start, 's', mbr_.partitions[x].s, 'name', mbr_.partitions[x].name)
-            if mbr_.partitions[x].status == b'0':
-                mbr_.partitions[x].status = b'1'
-                mbr_.partitions[x].type = type.encode('utf-8')
-                mbr_.partitions[x].fit = fit[1:].encode('utf-8')
-                mbr_.partitions[x].start = start+1
-                mbr_.partitions[x].s = fdisk_tamano
-                mbr_.partitions[x].name = name[:16].ljust(16, " ")
-                break
+        
+        if self.diskfit == 'f':
+            for x in range(0, 4):
+                # print('status', mbr_.partitions[x].status, 'type', mbr_.partitions[x].type, 'fit', mbr_.partitions[x].fit, 'start', mbr_.partitions[x].start, 's', mbr_.partitions[x].s, 'name', mbr_.partitions[x].name)
+                if mbr_.partitions[x].status == b'0' or mbr_.partitions[x].status == b'e':
+                    #valida que quepa
+                    if mbr_.partitions[x].s >= fdisk_tamano or mbr_.partitions[x].s == 0:
+                        mbr_.partitions[x].status = b'1'
+                        mbr_.partitions[x].type = type.encode('utf-8')
+                        mbr_.partitions[x].fit = fit[1:].encode('utf-8')
+                        mbr_.partitions[x].start = start+1
+                        mbr_.partitions[x].s = fdisk_tamano
+                        mbr_.partitions[x].name = name[:16].ljust(16, " ")
+                        
+                    else:
+                        print('[err]no cabe')
+                    break
+                else:
+                    start += mbr_.partitions[x].s
+
+        elif self.diskfit == 'w':
+            #obtener index del mayor
+            max_size=0
+            index=0
+            for x in range(0, 4):
+                if mbr_.partitions[x].s > max_size and mbr_.partitions[x].status == b'e':
+                    max_size = mbr_.partitions[x].s
+                    index = x
+            print("mayor",index)
+        
+            #barrido status 0 
+            for x in range (0,4):
+                if mbr_.partitions[x].status == b'0':
+                    index=x
+                    break
+                else:
+                    start += mbr_.partitions[x].s
+
+            #usar index 
+            #valida que quepa
+            if (mbr_.partitions[index].s >= fdisk_tamano or mbr_.partitions[index].s==0) and (mbr_.partitions[index].status==b'e' or mbr_.partitions[index].status==b'0'):
+                mbr_.partitions[index].status = b'1'
+                mbr_.partitions[index].type = type.encode('utf-8')
+                mbr_.partitions[index].fit = fit[1:].encode('utf-8')
+                if mbr_.partitions[index].start == 0:
+                    mbr_.partitions[index].start = start+1
+                mbr_.partitions[index].s = fdisk_tamano
+                mbr_.partitions[index].name = name[:16].ljust(16, " ")
             else:
-                start += mbr_.partitions[x].s
+                print('[err]no cabe')
+
+        elif self.diskfit == 'b':
+            index=0
+            #obtener index del menor
+            min_size=0
+            for x in range (0,4):
+                if mbr_.partitions[x].status == b'e':
+                    min_size=mbr_.partitions[x].s
+            if min_size!=0:
+                for x in range(1, 4):
+                    if mbr_.partitions[x].s < min_size and mbr_.partitions[x].status == b'e':
+                        min_size = mbr_.partitions[x].s
+                        index = x
+            print("menor",index)
+            #barrido status 0 
+            for x in range (0,4):
+                if mbr_.partitions[x].status == b'0':
+                    index=x
+                    break
+                else:
+                    start += mbr_.partitions[x].s
+
+            #usar index 
+            #valida que quepa
+            if (mbr_.partitions[index].s >= fdisk_tamano or mbr_.partitions[index].s==0) and (mbr_.partitions[index].status==b'e' or mbr_.partitions[index].status==b'0'):
+                mbr_.partitions[index].status = b'1'
+                mbr_.partitions[index].type = type.encode('utf-8')
+                mbr_.partitions[index].fit = fit[1:].encode('utf-8')
+                if mbr_.partitions[index].start == 0:
+                    mbr_.partitions[index].start = start+1
+                mbr_.partitions[index].s = fdisk_tamano
+                mbr_.partitions[index].name = name[:16].ljust(16, " ")
+            else:
+                print('[err]no cabe')
+
         # se debe escribir el mbr nuevamente
         # se convierte a bytes
         buffer = ""
@@ -133,22 +206,100 @@ class cmd_fdisk():
         if flag == False:
             # se llena la info del nuevo partition
             # print('size', mbr_.size, 'date', mbr_.date, 'signature', mbr_.signature, 'fit', mbr_.fit)
-            for x in range(0, 4):
-                # print('status', mbr_.partitions[x].status, 'type', mbr_.partitions[x].type, 'fit', mbr_.partitions[x].fit, 'start', mbr_.partitions[x].start, 's', mbr_.partitions[x].s, 'name', mbr_.partitions[x].name)
-                if mbr_.partitions[x].status == b'0':
-                    mbr_.partitions[x].status = b'1'
-                    mbr_.partitions[x].type = type.encode('utf-8')
-                    mbr_.partitions[x].fit = fit[1:].encode('utf-8')
-                    mbr_.partitions[x].start = start+1
-                    mbr_.partitions[x].s = fdisk_tamano
-                    mbr_.partitions[x].name = name[:16].ljust(16, " ")
+            
+            if self.diskfit == 'f':
+                for x in range(0, 4):
+                    # print('status', mbr_.partitions[x].status, 'type', mbr_.partitions[x].type, 'fit', mbr_.partitions[x].fit, 'start', mbr_.partitions[x].start, 's', mbr_.partitions[x].s, 'name', mbr_.partitions[x].name)
+                    if mbr_.partitions[x].status == b'0' or mbr_.partitions[x].status == b'e':
+                        mbr_.partitions[x].status = b'1'
+                        mbr_.partitions[x].type = type.encode('utf-8')
+                        mbr_.partitions[x].fit = fit[1:].encode('utf-8')
+                        mbr_.partitions[x].start = start+1
+                        mbr_.partitions[x].s = fdisk_tamano
+                        mbr_.partitions[x].name = name[:16].ljust(16, " ")
 
-                    ebr_.part_status = b'0'
-                    ebr_.part_start = mbr_.partitions[x].start
-                    inicio_ebr = mbr_.partitions[x].start
-                    break
+                        ebr_.part_status = b'0'
+                        ebr_.part_start = mbr_.partitions[x].start
+                        inicio_ebr = mbr_.partitions[x].start    
+                        break
+                    else:
+                        start += mbr_.partitions[x].s
+
+            elif self.diskfit == 'w':
+                #obtener index del mayor
+                max_size=0
+                index=0
+                for x in range(0, 4):
+                    if mbr_.partitions[x].s > max_size and mbr_.partitions[x].status == b'e':
+                        max_size = mbr_.partitions[x].s
+                        index = x
+                print("mayor",index)
+            
+                #barrido status 0 
+                for x in range (0,4):
+                    if mbr_.partitions[x].status == b'0':
+                        index=x
+                        break
+                    else:
+                        start += mbr_.partitions[x].s
+    
+                #usar index 
+                #valida que quepa
+                if (mbr_.partitions[index].s >= fdisk_tamano or mbr_.partitions[index].s==0) and (mbr_.partitions[index].status==b'e' or mbr_.partitions[index].status==b'0'):
+                        mbr_.partitions[index].status = b'1'
+                        mbr_.partitions[index].type = type.encode('utf-8')
+                        mbr_.partitions[index].fit = fit[1:].encode('utf-8')
+                        if mbr_.partitions[index].start == 0:
+                            mbr_.partitions[index].start = start+1
+                        mbr_.partitions[index].s = fdisk_tamano
+                        mbr_.partitions[index].name = name[:16].ljust(16, " ")
+
+                        ebr_.part_status = b'0'
+                        ebr_.part_start = mbr_.partitions[index].start
+                        inicio_ebr = mbr_.partitions[index].start    
+                        
                 else:
-                    start += mbr_.partitions[x].s
+                        print('[err]no cabe')
+                
+    
+            elif self.diskfit == 'b':
+                index=0
+                #obtener index del menor
+                min_size=0
+                for x in range (0,4):
+                    if mbr_.partitions[x].status == b'e':
+                        min_size=mbr_.partitions[x].s
+                if min_size!=0:
+                    for x in range(1, 4):
+                        if mbr_.partitions[x].s < min_size and mbr_.partitions[x].status == b'e':
+                            min_size = mbr_.partitions[x].s
+                            index = x
+                print("menor",index)
+                #barrido status 0 
+                for x in range (0,4):
+                    if mbr_.partitions[x].status == b'0':
+                        index=x
+                        break
+                    else:
+                        start += mbr_.partitions[x].s
+                #usar index 
+                #valida que quepa
+                if (mbr_.partitions[index].s >= fdisk_tamano or mbr_.partitions[index].s==0) and (mbr_.partitions[index].status==b'e' or mbr_.partitions[index].status==b'0'):
+                        mbr_.partitions[index].status = b'1'
+                        mbr_.partitions[index].type = type.encode('utf-8')
+                        mbr_.partitions[index].fit = fit[1:].encode('utf-8')
+                        if mbr_.partitions[index].start == 0:
+                            mbr_.partitions[index].start = start+1
+                        mbr_.partitions[index].s = fdisk_tamano
+                        mbr_.partitions[index].name = name[:16].ljust(16, " ")
+
+                        ebr_.part_status = b'0'
+                        ebr_.part_start = mbr_.partitions[index].start
+                        inicio_ebr = mbr_.partitions[index].start    
+                        
+                else:
+                        print('[err]no cabe')
+            
             # se debe escribir el mbr nuevamente
             # se convierte a bytes
             buffer = ""
@@ -241,7 +392,7 @@ class cmd_fdisk():
         for x in range(0, 4):
             if mbr_.partitions[x].name == name[:16].ljust(16, " "):
                 print('borrando')
-                mbr_.partitions[x].status = b'0'
+                mbr_.partitions[x].status = b'e'
                 mbr_.partitions[x].type = b'0'
                 mbr_.partitions[x].fit = b'0'
 

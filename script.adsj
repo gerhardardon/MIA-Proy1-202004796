@@ -8,4 +8,4 @@ fdisk -size=70 -unit=B -path=/home/user/Disco1.dsk -name=log1 -type=l
 fdisk -size=70 -unit=B -path=/home/user/Disco1.dsk -name=log2 -type=l
 
 fdisk -delete=full -path=/home/user/Disco1.dsk -name=ext
-fdisk -size=100 -unit=B -path=/home/user/Disco1.dsk -name=primextra
+fdisk -size=29 -unit=B -path=/home/user/Disco1.dsk -name=primextra

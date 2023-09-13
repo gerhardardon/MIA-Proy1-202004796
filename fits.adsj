@@ -1,0 +1,14 @@
+#execute -path=/home/gerhard/Escritorio/Archivos/MIA-Proy1-202004796/fits.adsj
+
+rmdisk -path=/home/user/Disco1.dsk
+mkdisk -size=100 -unit=K -fit=bf -path=/home/user/Disco1.dsk
+
+fdisk -size=30 -unit=B -path=/home/user/Disco1.dsk -name=prim1
+fdisk -size=50 -unit=B -path=/home/user/Disco1.dsk -name=prim2
+fdisk -delete=full -path=/home/user/Disco1.dsk -name=prim2
+fdisk -size=100 -unit=B -path=/home/user/Disco1.dsk -name=prim3
+fdisk -delete=full -path=/home/user/Disco1.dsk -name=prim3
+fdisk -size=200 -unit=B -path=/home/user/Disco1.dsk -name=prim4
+fdisk -size=40 -unit=B -path=/home/user/Disco1.dsk -name=ext -type=e
+
+fdisk -delete=full -path=/home/user/Disco1.dsk -name=ext
