@@ -3,9 +3,12 @@
 rmdisk -path=/home/user/Disco1.dsk
 mkdisk -size=100 -unit=K -path=/home/user/Disco1.dsk
 fdisk -size=30 -unit=B -path=/home/user/Disco1.dsk -name=prim1
-fdisk -size=200 -unit=B -path=/home/user/Disco1.dsk -name=ext -type=e
+fdisk -size=400 -unit=B -path=/home/user/Disco1.dsk -name=ext -type=e
 fdisk -size=70 -unit=B -path=/home/user/Disco1.dsk -name=log1 -type=l
 fdisk -size=70 -unit=B -path=/home/user/Disco1.dsk -name=log2 -type=l
+fdisk -size=70 -unit=B -path=/home/user/Disco1.dsk -name=log3 -type=l
+fdisk -size=70 -unit=B -path=/home/user/Disco1.dsk -name=log4 -type=l
 
-fdisk -delete=full -path=/home/user/Disco1.dsk -name=ext
-fdisk -size=29 -unit=B -path=/home/user/Disco1.dsk -name=primextra
+fdisk -delete=full -path=/home/user/Disco1.dsk -name=log3
+fdisk -delete=full -path=/home/user/Disco1.dsk -name=log4
+#fdisk -size=29 -unit=B -path=/home/user/Disco1.dsk -name=primextra

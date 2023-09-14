@@ -390,6 +390,7 @@ class cmd_fdisk():
         mbr_.leerBytes(path)
         # en este punto ya se tiene toda la info en var mbr_
         for x in range(0, 4):
+            #buscamos entre primarias y extendidas
             if mbr_.partitions[x].name == name[:16].ljust(16, " "):
                 print('borrando')
                 mbr_.partitions[x].status = b'e'
@@ -416,4 +417,35 @@ class cmd_fdisk():
                 mbr_ = mbr()
                 mbr_.leerBytes(path)
                 mbr_.imprimir()
+
+            #si es extendida, buscamos entre logicas
+            if mbr_.partitions[x].type==b'e':
+                #se obtiene primer ebr
+                ubicacion=mbr_.partitions[x].start
+                ebr_ = ebr()
+                ebr_.leerBytes(path, ubicacion)
+
+                while ebr_.part_status == b'1' or ebr_.part_status == b'e':
+                    if ebr_.part_name == name[:16].ljust(16, " "):
+                        print('borrando logic')
+                        ebr_.part_status = b'e'
+                        ebr_.part_fit = b'0'
+                        ebr_.part_name = ' '[:16].ljust(16, " ")
+
+                        #borramos contenido del disk
+                        with open("."+path, "rb+") as file:
+                            file.seek(ubicacion+ebr_.getSize())
+                            file.write(b'\x00' * (ebr_.part_s-ebr_.getSize()))
+                        #borramos ebr
+                        with open("."+path, "rb+") as file:
+                            file.seek(ubicacion)
+                            file.write(ebr_.getBytes())
+                        file.close()
+                        break     
+                    else:
+                        ubicacion = ebr_.part_next
+                        ebr_.leerBytes(path, ubicacion)
+                        print('ebr')
+                        ebr_.imprimir()
+            
 
