@@ -337,53 +337,57 @@ class cmd_fdisk():
         mbr_.leerBytes(path)
         flag=False
         ebr_ = ebr()
-        for x in range(0, 4):
-            # revisar si hay particion extendida
-            if mbr_.partitions[x].type == b'e':
-                flag=True
-                ubicacion = mbr_.partitions[x].start
-                # leer ebr
-                ebr_.leerBytes(path, ubicacion)
-                ebr_.imprimir()
-                # primer ebr
-                if ebr_.part_status == b'0':
-                    ebr_.part_status = b'1'
-                    ebr_.part_fit = fit[1:].encode('utf-8')
-                    ebr_.part_start = ubicacion
-                    ebr_.part_s = fdisk_tamano
-                    ebr_.part_next = ubicacion + fdisk_tamano + 1
-                    ebr_.part_name = name[:16].ljust(16, " ")
-
-                    with open("."+path, "rb+") as file:
-                        file.seek(ubicacion)
-                        file.write(ebr_.getBytes())
-                    file.close()
-                    print('primer ebr')
+        if self.diskfit == 'f':
+            for x in range(0, 4):
+                # revisar si hay particion extendida
+                if mbr_.partitions[x].type == b'e':
+                    flag=True
+                    ubicacion = mbr_.partitions[x].start
+                    # leer ebr
+                    ebr_.leerBytes(path, ubicacion)
                     ebr_.imprimir()
+                    # primer ebr
+                    if ebr_.part_status == b'0' or ebr_.part_status == b'e':
+                        if ebr_.part_s <= fdisk_tamano or ebr_.part_s == 0:
+                            ebr_.part_status = b'1'
+                            ebr_.part_fit = fit[1:].encode('utf-8')
+                            ebr_.part_start = ubicacion
+                            ebr_.part_s = fdisk_tamano
+                            ebr_.part_next = ubicacion + fdisk_tamano + 1
+                            ebr_.part_name = name[:16].ljust(16, " ")
 
-                elif ebr_.part_status == b'1':
-                    # bubscar ultimo ebr_
-                    while ebr_.part_status == b'1':
-                        ubicacion = ebr_.part_next
-                        ebr_.leerBytes(path, ubicacion)
-                        print('ebr')
+                            with open("."+path, "rb+") as file:
+                                file.seek(ubicacion)
+                                file.write(ebr_.getBytes())
+                            file.close()
+                            print('primer ebr')
+                            ebr_.imprimir()
+                        else:
+                            print('[err]no cabe')
+
+                    elif ebr_.part_status == b'1':
+                        # bubscar ultimo ebr_
+                        while ebr_.part_status == b'1':
+                            ubicacion = ebr_.part_next
+                            ebr_.leerBytes(path, ubicacion)
+                            print('ebr')
+                            ebr_.imprimir()
+                        # insertar ebr
+                        ebr_.part_status = b'1'
+                        ebr_.part_fit = fit[1:].encode('utf-8')
+                        ebr_.part_start = ubicacion
+                        ebr_.part_s = fdisk_tamano
+                        ebr_.part_next = ubicacion + fdisk_tamano + 1
+                        ebr_.part_name = name[:16].ljust(16, " ")
+
+                        with open("."+path, "rb+") as file:
+                            file.seek(ubicacion)
+                            file.write(ebr_.getBytes())
+                        file.close()
+                        print('nuevo ebr')
                         ebr_.imprimir()
-                    # insertar ebr
-                    ebr_.part_status = b'1'
-                    ebr_.part_fit = fit[1:].encode('utf-8')
-                    ebr_.part_start = ubicacion
-                    ebr_.part_s = fdisk_tamano
-                    ebr_.part_next = ubicacion + fdisk_tamano + 1
-                    ebr_.part_name = name[:16].ljust(16, " ")
-
-                    with open("."+path, "rb+") as file:
-                        file.seek(ubicacion)
-                        file.write(ebr_.getBytes())
-                    file.close()
-                    print('nuevo ebr')
-                    ebr_.imprimir()
-        if flag==False:
-            print('[err]no hay particion extendida')
+            if flag==False:
+                print('[err]no hay particion extendida')
 
     def deletePartition(self, path, name, delete):
         mbr_ = mbr()

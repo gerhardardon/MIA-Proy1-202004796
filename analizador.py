@@ -2,9 +2,9 @@ import argparse
 from comandos.cmd_mkdisk import cmd_mkdisk
 from comandos.cmd_rmdisk import cmd_rmdisk
 from comandos.cmd_fdisk import cmd_fdisk
+from comandos.cmd_mount import cmd_mount
 
 # funciones para comandos (reemplazar con clases)
-
 
 def crear_disco(path, size, fit, unit):
     print(f"mkdisk path {path}, size {size}, fit {fit}, unit {unit}")
@@ -60,9 +60,17 @@ def cmd_parser(line):
         '-type', type=str, required=False, choices=['p', 'e', 'l'], default='p')
     fdisk_parser.add_argument(
         '-fit', type=str, required=False, choices=['bf', 'ff', 'wf'], default='wf')
-    fdisk_parser.add_argument(
-        '-delete', type=str, required=False, choices=['full'])
+    fdisk_parser.add_argument('-delete', type=str, required=False,    choices=['full'])
     fdisk_parser.add_argument('-add', type=int, required=False)
+
+    # cmd MOUNT
+    fdisk_parser = subparsers.add_parser('mount', help='monta particion')
+    fdisk_parser.add_argument('-path', required=True, help='')
+    fdisk_parser.add_argument('-name', required=True, help='')
+
+    # cmd UNMOUNT
+    fdisk_parser = subparsers.add_parser('unmount', help='desmonta particion')
+    fdisk_parser.add_argument('-id', required=True, help='')
 
     args = parser.parse_args()
     entrada = line
@@ -110,6 +118,15 @@ def cmd_parser(line):
                     # llamamos a la clase
                     x = cmd_fdisk()
                     x.createFdisk(args.size, args.path, args.name,args.unit, args.type, args.fit)
+
+    elif args.comando == 'mount':
+        path = args.path.strip('"')
+        x=cmd_mount()
+        x.mountPartition(path, args.name)
+
+    elif args.comando == 'unmount':
+        x=cmd_mount()
+        x.unmountPartition(args.id)
 
     elif args.comando == 'mkfile':
         crear_archivo(args.name, args.age)

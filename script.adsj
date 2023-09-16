@@ -10,5 +10,7 @@ fdisk -size=70 -unit=B -path=/home/user/Disco1.dsk -name=log3 -type=l
 fdisk -size=70 -unit=B -path=/home/user/Disco1.dsk -name=log4 -type=l
 
 fdisk -delete=full -path=/home/user/Disco1.dsk -name=log3
-fdisk -delete=full -path=/home/user/Disco1.dsk -name=log4
+#fdisk -delete=full -path=/home/user/Disco1.dsk -name=log4
+
+fdisk -size=70 -unit=B -path=/home/user/Disco1.dsk -name=lognew -type=l
 #fdisk -size=29 -unit=B -path=/home/user/Disco1.dsk -name=primextra

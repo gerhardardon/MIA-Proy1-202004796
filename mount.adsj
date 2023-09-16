@@ -1,0 +1,9 @@
+#execute -path=/home/gerhard/Escritorio/Archivos/MIA-Proy1-202004796/mount.adsj
+mount -name=part1 -path=/home/user/disco1.dsk
+mount -name=part2 -path=/home/user/disco1.dsk
+mount -name=part2 -path=/home/user/disco1.dsk
+mount -name=part3 -path=/home/user/disco1.dsk
+
+unmount -id=961disco1
+unmount -id=962disco1
+unmount -id=962disco1

@@ -1,4 +1,6 @@
 #partition-> status, type, fit, start, s, !!name --------------------------------------------------
+mounted=[]
+
 class partition():
     def __init__(self, status=b'0', type=b'0', fit=b'0', start=0, s=0, name="0"):
         self.status = status
